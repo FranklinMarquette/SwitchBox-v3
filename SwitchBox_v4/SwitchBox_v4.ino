@@ -1,7 +1,6 @@
 //Created by FrankyMonez
 //SWITCHBOX v3
 
-#include <NewPing.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -61,14 +60,12 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
 #define RELAY_ON 1
 #define RELAY_OFF 0
 
-int motion = 1;
-
 //buzzer pin
 int buzzerPin = 2;
 //led output
 int LED_OUT = 3;
 //indicator LED for bench LEDs
-int LED_IND = 4;
+//int LED_IND = 4;
 //output that turns everything off
 int OFF = 5;
 //on indicator
@@ -80,14 +77,15 @@ int MAIN_RELAY = 7;
 int LED_ACTIVATOR = 14;
 //led pot control
 int LED_POTPIN = 15;
+//activated when door opens from inside
+int offind = 16;
+//is key inserted?
+int keyin = 17;
 
 //default pot control value
 int knobValue = 0;
 //main control state
-int MAIN_STATE = 0;
-
-NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-
+//int mainstate = 0;
 
 void setup(){
   
@@ -95,7 +93,6 @@ void setup(){
   
   pinMode(LED_OUT, OUTPUT);
   pinMode(STATUSLED_RELAY, OUTPUT);
-  pinMode(LED_IND, OUTPUT);
   pinMode(MAIN_RELAY, OUTPUT);
   pinMode(OFF, OUTPUT);
   pinMode(buzzerPin, OUTPUT);
@@ -106,9 +103,19 @@ void setup(){
 }
 
 void loop() {
+    /*int offread = analogRead(offind);
+    int offfinal = offread/204.6; 
+     
+     if(offfinal > 3) {
+       mainstate = 1;
+     }*/
+     
      LED_CONTROL();
      
-     MOTION();
+     blah();
+     
+     key1();
+     //OFf();
      }
 
 void BOOT_UP() {
@@ -150,6 +157,7 @@ void BOOT_UP() {
      digitalWrite(STATUSLED_RELAY, RELAY_ON);
      delay(1000);
      digitalWrite(STATUSLED_RELAY, RELAY_OFF);
+     delay(1000);
   
      display.clearDisplay();
      display.setTextSize(1.99);
@@ -162,6 +170,7 @@ void BOOT_UP() {
      digitalWrite(STATUSLED_RELAY, RELAY_ON);
      delay(1000);
      digitalWrite(STATUSLED_RELAY, RELAY_OFF);
+     delay(1000);
   
      display.clearDisplay();
      display.setTextSize(1.99);
@@ -174,6 +183,7 @@ void BOOT_UP() {
      digitalWrite(STATUSLED_RELAY, RELAY_ON);
      delay(1000);
      digitalWrite(STATUSLED_RELAY, RELAY_OFF);
+     delay(1000);
   
      display.clearDisplay();
      display.setTextSize(1.99);
@@ -186,6 +196,7 @@ void BOOT_UP() {
      digitalWrite(STATUSLED_RELAY, RELAY_ON);
      delay(1000);
      digitalWrite(STATUSLED_RELAY, RELAY_OFF);
+     delay(1000);
   
      display.clearDisplay();
      display.setTextSize(1.99);
@@ -198,6 +209,7 @@ void BOOT_UP() {
      digitalWrite(STATUSLED_RELAY, RELAY_ON);
      delay(1000);
      digitalWrite(STATUSLED_RELAY, RELAY_OFF);
+     delay(1000);
   
      display.clearDisplay();
      display.setTextSize(1.99);
@@ -210,6 +222,7 @@ void BOOT_UP() {
      digitalWrite(STATUSLED_RELAY, RELAY_ON);
      delay(1000);
      digitalWrite(STATUSLED_RELAY, RELAY_OFF);
+     delay(1000);
   
      display.clearDisplay();
      display.setTextSize(1.99);
@@ -222,6 +235,7 @@ void BOOT_UP() {
      digitalWrite(STATUSLED_RELAY, RELAY_ON);
      delay(1000);
      digitalWrite(STATUSLED_RELAY, RELAY_OFF);
+     delay(1000);
   
      display.clearDisplay();
      display.setTextSize(1.99);
@@ -233,16 +247,11 @@ void BOOT_UP() {
      display.display();
      digitalWrite(STATUSLED_RELAY, RELAY_ON);
      delay(1000);
-     digitalWrite(STATUSLED_RELAY, RELAY_OFF);
      
-   //boot up sound
-  for(int i=0; i<30; i++){
-    tone(buzzerPin, 50+10*i, 30);
-    delay(30);
-  }
-  tone(buzzerPin, 350);
+  analogWrite(buzzerPin, 255);
   delay(100);
-  digitalWrite(STATUSLED_RELAY, RELAY_ON);
+  analogWrite(buzzerPin, 0);
+  delay(100);
   digitalWrite(MAIN_RELAY, HIGH);
   delay(1000);
   
@@ -254,120 +263,45 @@ void BOOT_UP() {
   
 }
 
-void SCAN(){
+void blah() {
+  int offread = analogRead(offind);
+  int offfinal = offread/204.6;
   
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
+  if(offfinal > 4) {
+    digitalWrite(MAIN_RELAY, LOW);
+    digitalWrite(STATUSLED_RELAY, RELAY_OFF);
+    digitalWrite(OFF, HIGH);
+  }
   
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
-  
-  delay(30);
-  motion =  sonar.ping_in(); // Convert ping time to distance in in and assign it to waxDis - is 0 if distance is out of limit
-  Serial.println(motion);
-  Serial.print(" in");
+    }
+void key1(){
+  int keyread = analogRead(keyin);
+  int key = keyread/204.6;
+  if(key > 4) {
+      display.clearDisplay();
+      display.setTextSize(2.59);
+      display.setTextColor(WHITE);
+      display.setCursor(0, 0);
+      display.println("Key Inserted");
+      tone(buzzerPin, 262, 500);
+      delay(500);
+      delay(1000);
+      display.clearDisplay();
+      display.setTextSize(1.99);
+      display.println("Power save");
+      display.println("over-ride activated");
+      display.display();
+      delay(2000);
+      display.clearDisplay();
+  }
 }
 
-void MOTION() {
-  SCAN();
-  if(motion > 0) {
-
-  }
-  else if (motion == 0) {
+/*void OFf() {
+  
+ int keyread = analogRead(keyin);
+ int key = keyread/204.6;
+ 
+  if (key < 3 && mainstate == 1) {
     display.clearDisplay();
     display.setTextSize(1.99);
     display.setTextColor(WHITE);
@@ -377,33 +311,114 @@ void MOTION() {
     display.println("  Sensed  ");
     display.display();
     delay(2000);
-    SCAN();
-    if(motion > 0) {
-    }
-    else if(motion == 0) {
+    
+    if(key > 3) {
+                  
+      mainstate = 0;
+      
+      display.clearDisplay();
+      display.setTextSize(2.59);
+      display.setTextColor(WHITE);
+      display.setCursor(0, 20);
+      display.println("Key Inserted");
+      tone(buzzerPin, 262, 500);
+      delay(500);
+      delay(1000);
+      display.clearDisplay();
+      display.setTextSize(1.99);
+      display.println("Power save");
+      display.println("over-ride activated");
+      display.display();
+      delay(2000);
+  }
+    else if(key < 3 && mainstate == 1) {
       for(int i=0;i<8;i++){
       tone(buzzerPin, 262, 500);
       delay(1000);
       }
-      SCAN();
-      if(motion > 0) {
-      }
-      else if(motion == 0) {
+      if(key > 3) {
+                  
+        mainstate = 0;
+        
+        display.clearDisplay();
+        display.setTextSize(2.59);
+        display.setTextColor(WHITE);
+        display.setCursor(0, 20);
+        display.println("Key Inserted");
+        tone(buzzerPin, 262, 500);
+        delay(500);
         delay(1000);
-        SCAN();
-        if (motion > 0) {
-        }
-        else if(motion == 0) {
+        display.clearDisplay();
+        display.setTextSize(1.99);
+        display.println("Power save");
+        display.println("over-ride activated");
+        display.display();
+        delay(2000);
+  }
+      else if(key < 3 && mainstate == 1) {
+        delay(1000);
+        if(key > 3) {
+                  
+          mainstate = 0;
+          
+          display.clearDisplay();
+          display.setTextSize(2.59);
+          display.setTextColor(WHITE);
+          display.setCursor(0, 20);
+          display.println("Key Inserted");
+          tone(buzzerPin, 262, 500);
+          delay(500);
           delay(1000);
-          SCAN();
-          if(motion > 0) {
-          }
-          else if(motion == 0) {
+          display.clearDisplay();
+          display.setTextSize(1.99);
+          display.println("Power save");
+          display.println("over-ride activated");
+          display.display();
+          delay(2000);
+  }
+        else if(key < 3 && mainstate == 1) {
+          delay(1000);
+          if(key > 3) {
+                  
+            mainstate = 0;
+            
+            display.clearDisplay();
+            display.setTextSize(2.59);
+            display.setTextColor(WHITE);
+            display.setCursor(0, 20);
+            display.println("Key Inserted");
+            tone(buzzerPin, 262, 500);
+            delay(500);
             delay(1000);
-            SCAN();
-            if(motion > 0) {
-            }
-            else if (motion == 0) {
+            display.clearDisplay();
+            display.setTextSize(1.99);
+            display.println("Power save");
+            display.println("over-ride activated");
+            display.display();
+            delay(2000);
+  }
+          else if(key < 3 && mainstate == 1) {
+            delay(1000);
+            if(key > 3) {
+                  
+               mainstate = 0;
+              
+               display.clearDisplay();
+               display.setTextSize(2.59);
+               display.setTextColor(WHITE);
+               display.setCursor(0, 20);
+               display.println("Key Inserted");
+               tone(buzzerPin, 262, 500);
+               delay(500);
+               delay(1000);
+               display.clearDisplay();
+               display.setTextSize(1.99);
+               display.println("Power save");
+               display.println("over-ride activated");
+               display.display();
+               delay(2000);
+  }
+            else if (key < 3 && mainstate == 1) {
                 display.clearDisplay();
                 display.setTextSize(1.99);
                 display.setTextColor(WHITE);
@@ -413,10 +428,27 @@ void MOTION() {
                 display.println("in five seconds");
                 display.display();
                 delay(5000);
-                SCAN();
-                if(motion > 0) {
-                }
-                else if(motion == 0) {
+                
+                if(key > 3) {
+                  
+                  mainstate = 0;
+                  
+                  display.clearDisplay();
+                  display.setTextSize(2.59);
+                  display.setTextColor(WHITE);
+                  display.setCursor(0, 20);
+                  display.println("Key Inserted");
+                  tone(buzzerPin, 262, 500);
+                  delay(500);
+                  delay(1000);
+                  display.clearDisplay();
+                  display.setTextSize(1.99);
+                  display.println("Power save");
+                  display.println("over-ride activated");
+                  display.display();
+                  delay(2000);
+  }
+                else if(key < 3 && mainstate  == 1) {
                   
                   display.setTextSize(1.99);
                   display.setTextColor(WHITE);
@@ -517,7 +549,7 @@ void MOTION() {
     }
     }
 }//end main else if
-}//end SCAN
+}end SCAN*/
 
  void LED_CONTROL() {
   int LED_READ = analogRead(LED_ACTIVATOR);
@@ -528,11 +560,9 @@ void MOTION() {
      knobValue = analogRead(LED_POTPIN)/4;
         
      analogWrite(LED_OUT, knobValue);
-     analogWrite(LED_IND, knobValue);
      }
       
    else {
       analogWrite(LED_OUT, 0);
-      analogWrite(LED_IND, 0);
           }
  }
